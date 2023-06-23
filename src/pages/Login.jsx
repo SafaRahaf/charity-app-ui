@@ -8,8 +8,6 @@ const LoginForm = () => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    // Handle form submission logic here
   };
 
   return (
