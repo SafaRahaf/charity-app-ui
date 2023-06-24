@@ -1,60 +1,127 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useContext, useEffect } from "react";
+import { AuthContext } from "../AuthProvider";
+import axios from "axios";
+import { Button } from "flowbite-react";
 
-const LoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Login = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { signIn, user } = useContext(AuthContext);
 
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    navigate(location.state?.redirectTo || "/");
+    const form = event.target;
+    const email = form.email.value;
+    const password = form.password.value;
+
+    try {
+      await signIn(email, password);
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate(location.state?.redirectTo || "/");
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: error.message,
+      });
+    }
   };
 
-  return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="bg-white p-8 rounded-lg shadow-md w-80">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <>skadujyg</>
-            <label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
+  useEffect(() => {
+    if (user) {
+      navigate(location.state?.redirectTo || "/");
+    }
+  }, [user]);
 
-              className="mt-1 px-4 py-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+  return (
+    <div>
+      <section className="bg-gray-50 dark:bg-gray-900 ">
+        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+          <Link
+            to="/"
+            className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
+          ></Link>
+          <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+            <div className="p-6 space-y-4 md:space-y-6 sm:p-8 ">
+              <div className="flex justify-center">
+                <img
+                  className="h-40 "
+                  src="https://img.freepik.com/free-vector/login-concept-illustration_114360-739.jpg?w=740&t=st=1686565943~exp=1686566543~hmac=ddb5d718cd76b9f22fbda94a31e5e0f73e2b451b05fc8417f61cccbe82332c8a"
+                  alt=""
+                />
+              </div>
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                Login to your account
+              </h1>
+              <form onSubmit={handleLogin} className="space-y-4 md:space-y-6">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Your Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="name@company.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="••••••••"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    required
+                  />
+                </div>
+
+                <div className="flex justify-center">
+                  <Button type="submit">LOGIN</Button>
+                </div>
+              </form>
+
+              <p className="text-sm font-light text-center text-gray-500 dark:text-gray-400">
+                Don’t have an account yet?{" "}
+                <button
+                  onClick={() => {
+                    // e.preventDefault();
+                    navigate("/users/signup", {
+                      state: { redirectTo: location?.state?.redirectTo },
+                    });
+                  }}
+                >
+                  <a className="font-medium text-primary-600 hover:underline dark:text-primary-500">
+                    Sign up
+                  </a>
+                </button>
+              </p>
+            </div>
           </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="mt-1 px-4 py-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Login
-          </button>
-        </form>
-      </div>
+        </div>
+      </section>
     </div>
   );
 };
 
-export default LoginForm;
+export default Login;
